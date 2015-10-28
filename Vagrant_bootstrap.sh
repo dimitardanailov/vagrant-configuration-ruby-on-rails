@@ -15,6 +15,10 @@ n=$(which node);n=${n%/bin/node}; chmod -R 755 $n/bin/*; sudo cp -r $n/{bin,lib,
 which node
 
 echo "Installing ruby with rbenv"
+
+# Remove old versions
+sudo apt-get -y remove ruby1.9.1
+
 # https://cbednarski.com/articles/installing-ruby/
 sudo apt-get install -y libssl-dev zlib1g-dev libreadline-dev
 
@@ -57,26 +61,30 @@ sudo apt-get install -y nginx
 echo "Making necessary links..."
 # Remove default nginx file.
 sudo rm /etc/nginx/sites-enabled/default 
+unlink /etc/nginx/sites-enabled/$1.conf
 sudo ln -s /vagrant/config/nginx.conf /etc/nginx/sites-enabled/$1.conf
 
 echo "Copying configuration..."
 sudo service nginx restart
 
 echo 'Setup project'
-cd /vagrant/
+cd /vagrant
 
 sudo -u vagrant -i rbenv global 2.1.5
 sudo -u vagrant -i rbenv rehash
 sudo -u vagrant -i ruby -v
-
-# Create necessary folders and give us necessary permissions
-sudo mkdir tmp/cache/
-sudo mkdir tmp/pids/
-sudo chmod 777 -R /vagrant/log/
-sudo chmod 777 -R /vagrant/tmp/
+sudo -u vagrant -i bundle -v
 
 # install gems
-sudo bundle install --without development test
+echo 'Install Gems'
+sudo -u vagrant -i /vagrant/bin/bundle install --without development test
+
+echo 'Create log and temp folders'
+# Create necessary folders and give us necessary permissions
+sudo mkdir /vagrant/tmp/cache/
+sudo mkdir /vagrant/tmp/pids/
+sudo chmod 777 -R /vagrant/log/
+sudo chmod 777 -R /vagrant/tmp/
 
 # Run migrations for production database
 # If you have any problems with database check this resource: 
@@ -84,7 +92,9 @@ sudo bundle install --without development test
 # rake db:migrate RAILS_ENV=production
 
 # Unicorn Setup
+echo 'Unicorn Setup'
 chmod +x /vagrant/config/unicorn-init.sh
+unlink /etc/init.d/$1
 sudo ln -s /vagrant/config/unicorn-init.sh /etc/init.d/$1
 sudo /etc/init.d/$1 stop
 sudo /etc/init.d/$1 start

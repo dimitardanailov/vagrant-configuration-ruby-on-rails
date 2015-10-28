@@ -7,7 +7,7 @@ set -e
 TIMEOUT=${TIMEOUT-60}
 APP_ROOT=/vagrant
 PID=$APP_ROOT/tmp/pids/unicorn.pid
-CMD="$APP_ROOT/bin/bundle exec unicorn -D -c $APP_ROOT/config/unicorn.rb -p 3000 -E production"
+CMD="sudo -u vagrant -i $APP_ROOT/bin/bundle exec unicorn -D -c $APP_ROOT/config/unicorn.rb -p 3000 -E production"
 INIT_CONF=$APP_ROOT/config/init.conf
 action="$1"
 set -u

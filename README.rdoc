@@ -26,3 +26,18 @@ Things you may want to cover:
 
 Please feel free to use a different markup language if you do not plan to run
 <tt>rake doc:app</tt>.
+
+
+### Vagrant setup
+
+```bash
+cd /vagrant/
+RAILS_ENV=production rake secret
+sudo -u vagrant echo 'export SECRET_KEY_BASE="GENERATED_CODE"' >> /home/vagrant/.profile
+
+source /home/vagrant/.profile
+
+printenv | grep SECRET_KEY_BASE
+
+sudo /etc/init.d/my_application restart
+```
