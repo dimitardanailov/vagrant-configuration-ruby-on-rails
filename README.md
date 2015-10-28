@@ -1,4 +1,4 @@
-== README
+# Example project with setup of Vagrant and Ruby on Rails
 
 ### Vagrant setup
 
