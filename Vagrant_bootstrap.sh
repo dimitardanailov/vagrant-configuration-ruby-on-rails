@@ -1,9 +1,13 @@
+# Application Setup
+echo "Application name: $1"
+
 sudo apt-get update
+sudo apt-get install -y git
 
 echo "Installing node.js"
 # https://www.digitalocean.com/community/tutorials/how-to-install-node-js-with-nvm-node-version-manager-on-a-vps
-curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.29.0/install.sh | bash
-sudo apt-get install -y git
+sudo curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.29.0/install.sh | bash
+source ~/.bashrc
 nvm install 0.12.7
 nvm use v0.12.7
 # Set node to be global
@@ -30,9 +34,6 @@ sudo -u vagrant -i ruby -v
 sudo -u vagrant -i gem install bundler --no-ri --no-rdoc
 sudo -u vagrant -i rbenv rehash
 
-# Login with root account
-sudo su
-
 echo "Installing Postgresql"
 # Create the file /etc/apt/sources.list.d/pgdg.list, and add a line for the repository
 rm /etc/apt/sources.list.d/pgdg.list
@@ -42,14 +43,48 @@ cat /etc/apt/sources.list.d/pgdg.list
 
 # Import the repository signing key, and update the package lists
 wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
-apt-get -y update
+sudo apt-get -y update
 
-apt-get install -y postgresql-9.4 postgresql-client-9.4 libpq-dev postgresql-server-dev-9.4 postgresql-contrib-9.4
+sudo apt-get install -y postgresql-9.4 postgresql-client-9.4 libpq-dev postgresql-server-dev-9.4 postgresql-contrib-9.4
 psql --version
 
-# Postgresql permissions
-sudo -u postgres createuser --superuser vagrant
-sudo -u postgres createdb -O vagrant sys-test
-
 echo 'Restart postgresql'
-/etc/init.d/postgresql restart
+sudo /etc/init.d/postgresql restart
+
+echo "Installing nginx..."
+sudo apt-get install -y nginx
+
+echo "Making necessary links..."
+# Remove default nginx file.
+sudo rm /etc/nginx/sites-enabled/default 
+sudo ln -s /vagrant/config/nginx.conf /etc/nginx/sites-enabled/$1.conf
+
+echo "Copying configuration..."
+sudo service nginx restart
+
+echo 'Setup project'
+cd /vagrant/
+
+sudo -u vagrant -i rbenv global 2.1.5
+sudo -u vagrant -i rbenv rehash
+sudo -u vagrant -i ruby -v
+
+# Create necessary folders and give us necessary permissions
+sudo mkdir tmp/cache/
+sudo mkdir tmp/pids/
+sudo chmod 777 -R /vagrant/log/
+sudo chmod 777 -R /vagrant/tmp/
+
+# install gems
+sudo bundle install --without development test
+
+# Run migrations for production database
+# If you have any problems with database check this resource: 
+# http://stackoverflow.com/questions/18664074/getting-error-peer-authentication-failed-for-user-postgres-when-trying-to-ge/29517454#29517454
+# rake db:migrate RAILS_ENV=production
+
+# Unicorn Setup
+chmod +x /vagrant/config/unicorn-init.sh
+sudo ln -s /vagrant/config/unicorn-init.sh /etc/init.d/$1
+sudo /etc/init.d/$1 stop
+sudo /etc/init.d/$1 start
