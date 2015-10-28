@@ -1,43 +1,14 @@
 == README
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
-
-Things you may want to cover:
-
-* Ruby version
-
-* System dependencies
-
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
-
-
-Please feel free to use a different markup language if you do not plan to run
-<tt>rake doc:app</tt>.
-
-
 ### Vagrant setup
 
-```bash
-cd /vagrant/
-RAILS_ENV=production rake secret
-sudo -u vagrant echo 'export SECRET_KEY_BASE="GENERATED_CODE"' >> /home/vagrant/.profile
+##### Generate rails secret key
 
-source /home/vagrant/.profile
+```bash
+vagrant ssh
+cd /vagrant/
+chmod +x config/config/generate_secret_code.sh
+./config/config/generate_secret_code.sh
 
 printenv | grep SECRET_KEY_BASE
-
-sudo /etc/init.d/my_application restart
 ```
