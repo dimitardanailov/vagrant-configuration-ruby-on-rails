@@ -57,6 +57,20 @@ Vagrant.configure(2) do |config|
   #   # Customize the amount of memory on the VM:
   #   vb.memory = "1024"
   # end
+  # http://www.cantoni.org/2014/09/22/quick-guide-vagrant-amazon-ec2
+  config.vm.provider :aws do |aws, override|
+    aws.access_key_id = ENV['AWS_KEY_RAILS']
+    aws.secret_access_key = ENV['AWS_SECRET_RAILS']
+    aws.keypair_name = ENV['AWS_KEYNAME_RAILS']
+
+    aws.ami = "ami-47a23a30"
+    aws.region = "eu-west-1"
+    aws.instance_type = "t2.micro"
+
+    override.ssh.username = "vagrant"
+    override.ssh.private_key_path = ENV['AWS_KEYPATH_RAILS']
+  end
+
   #
   # View the documentation for the provider you are using for more
   # information on available options.

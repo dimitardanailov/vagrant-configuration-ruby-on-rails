@@ -12,3 +12,13 @@ chmod +x config/config/generate_secret_code.sh
 
 printenv | grep SECRET_KEY_BASE
 ```
+
+##### Amazon
+
+We use [vagrant-aws](https://github.com/mitchellh/vagrant-aws)
+
+```bash
+vagrant plugin install vagrant-aws
+
+vagrant up --provider=aws
+```
